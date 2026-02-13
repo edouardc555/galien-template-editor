@@ -1,0 +1,1009 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Galien Outreach Manager</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, 'Segoe UI', Arial, sans-serif; background: #f8f9fa; color: #202124; height: 100vh; overflow: hidden; }
+
+  /* HEADER */
+  .header { background: #fff; border-bottom: 1px solid #dadce0; padding: 0 20px; display: flex; align-items: center; height: 48px; gap: 24px; }
+  .logo { font-size: 15px; font-weight: 600; color: #202124; white-space: nowrap; }
+  .pipelines { display: flex; gap: 0; height: 100%; }
+  .pipe-tab { padding: 0 16px; height: 100%; display: flex; align-items: center; font-size: 13px; cursor: pointer; border-bottom: 2px solid transparent; color: #5f6368; font-weight: 500; transition: all 0.15s; white-space: nowrap; }
+  .pipe-tab:hover { color: #202124; background: #f1f3f4; }
+  .pipe-tab.active { color: #1a73e8; border-bottom-color: #1a73e8; }
+  .pipe-count { font-size: 10px; background: #e8eaed; color: #5f6368; border-radius: 8px; padding: 1px 6px; margin-left: 6px; }
+  .pipe-tab.active .pipe-count { background: #d2e3fc; color: #1967d2; }
+
+  /* LAYOUT */
+  .container { display: flex; height: calc(100vh - 48px); }
+
+  /* SIDEBAR - STEPS */
+  .sidebar { width: 300px; background: #fff; border-right: 1px solid #dadce0; overflow-y: auto; flex-shrink: 0; }
+  .step-item { padding: 10px 16px; cursor: pointer; border-bottom: 1px solid #f1f3f4; display: flex; gap: 10px; align-items: flex-start; transition: background 0.1s; }
+  .step-item:hover { background: #f8f9fa; }
+  .step-item.active { background: #e8f0fe; }
+  .step-num { font-size: 11px; font-weight: 700; color: #5f6368; background: #f1f3f4; border-radius: 4px; min-width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .step-item.active .step-num { background: #1a73e8; color: #fff; }
+  .step-info { flex: 1; min-width: 0; }
+  .step-name { font-size: 13px; font-weight: 500; color: #202124; margin-bottom: 3px; }
+  .step-meta { font-size: 11px; color: #80868b; }
+  .step-tpl { font-family: 'SF Mono', Consolas, monospace; font-size: 10px; color: #5f6368; }
+  .espanso-input { margin-top: 4px; }
+  .espanso-input input { font-family: 'SF Mono', Consolas, monospace; font-size: 10px; padding: 3px 5px; border: 1px solid #dadce0; border-radius: 3px; width: 100%; background: #f8f9fa; }
+  .espanso-input input:focus { outline: none; border-color: #1a73e8; background: #fff; }
+  .espanso-input input::placeholder { color: #80868b; font-style: italic; }
+  .tag { display: inline-block; padding: 1px 5px; border-radius: 3px; font-size: 9px; font-weight: 600; margin-right: 3px; }
+  .tag-ok { background: #e6f4ea; color: #137333; }
+  .tag-fix { background: #fef7e0; color: #b06000; }
+  .tag-no { background: #fce8e6; color: #c5221f; }
+  .tag-lem { background: #f3e8fd; color: #7b2cbf; }
+  .tag-esp { background: #e8f0fe; color: #1967d2; }
+
+  /* MAIN AREA */
+  .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+  /* INFO BAR */
+  .info-bar { background: #fff; border-bottom: 1px solid #dadce0; padding: 12px 20px; display: flex; justify-content: space-between; align-items: flex-start; }
+  .info-left h2 { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+  .info-left .info-tags { display: flex; gap: 4px; flex-wrap: wrap; }
+  .info-docs { font-size: 11px; color: #5f6368; text-align: right; max-width: 300px; }
+  .info-docs b { color: #202124; font-size: 11px; }
+  .info-docs ul { list-style: none; margin-top: 2px; }
+  .info-docs li { margin-bottom: 1px; }
+  .info-docs li::before { content: "→ "; color: #dadce0; }
+
+  /* EMAIL EDITOR */
+  .editor-wrap { flex: 1; overflow-y: auto; padding: 20px; background: #f8f9fa; }
+  .compose { max-width: 680px; margin: 0 auto; background: #fff; border-radius: 8px; border: 1px solid #dadce0; }
+  .compose-header { background: #f1f3f4; padding: 8px 16px; border-radius: 8px 8px 0 0; border-bottom: 1px solid #dadce0; }
+  .compose-row { display: flex; align-items: center; padding: 4px 0; font-size: 13px; }
+  .compose-row label { color: #5f6368; width: 55px; font-size: 12px; }
+  .compose-row input { border: none; outline: none; flex: 1; font-size: 13px; background: transparent; }
+  .compose-body { padding: 16px 20px; min-height: 400px; font-size: 14px; line-height: 1.7; color: #202124; outline: none; }
+  .compose-body:focus { outline: none; }
+  .compose-body b { font-weight: bold; }
+  .compose-body a { color: #1a73e8; }
+  .compose-body ul { margin: 6px 0; padding-left: 24px; }
+  .compose-body li { margin: 3px 0; }
+  .compose-footer { padding: 10px 16px; border-top: 1px solid #e8eaed; display: flex; gap: 8px; align-items: center; }
+  .btn { padding: 7px 16px; border-radius: 4px; border: none; cursor: pointer; font-size: 12px; font-weight: 500; }
+  .btn-blue { background: #1a73e8; color: #fff; }
+  .btn-blue:hover { background: #1557b0; }
+  .btn-grey { background: #f1f3f4; color: #202124; }
+  .btn-grey:hover { background: #e8eaed; }
+  #toast { font-size: 11px; color: #34a853; margin-left: 8px; }
+
+  .placeholder { color: #ea4335; font-style: italic; }
+  .empty-state { display: flex; align-items: center; justify-content: center; height: 100%; color: #80868b; font-size: 14px; }
+
+  /* LINKS PANEL */
+  .links-panel { padding: 20px; overflow-y: auto; }
+  .links-section { margin-bottom: 24px; }
+  .links-section h3 { font-size: 14px; font-weight: 600; color: #202124; margin-bottom: 8px; }
+  .links-section ul { list-style: none; }
+  .links-section li { margin-bottom: 6px; }
+  .links-section a { color: #1a73e8; text-decoration: none; font-size: 13px; }
+  .links-section a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">Galien Outreach</div>
+  <div class="pipelines" id="pipelines">
+    <div class="pipe-tab" data-id="links" onclick="selectPipe('links')">📎 Liens utiles</div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="sidebar" id="sidebar"></div>
+  <div class="main">
+    <div class="info-bar" id="infoBar" style="display:none"></div>
+    <div class="editor-wrap">
+      <div class="compose" id="compose" style="display:none">
+        <div class="compose-header">
+          <div class="compose-row"><label>From</label><input value="Edouard Cohen <ecohen@galienfoundation.org>" readonly style="color:#999"></div>
+          <div class="compose-row"><label>To</label><input id="fieldTo"></div>
+          <div class="compose-row"><label>Subject</label><input id="fieldSubject"></div>
+        </div>
+        <div class="compose-body" id="fieldBody" contenteditable="true"></div>
+        <div class="compose-footer">
+          <button class="btn btn-blue" onclick="copyHTML()">Copy HTML</button>
+          <button class="btn btn-grey" onclick="copyText()">Copy Text</button>
+          <button class="btn btn-grey" onclick="saveStep()">Save to File</button>
+          <span id="toast"></span>
+        </div>
+      </div>
+      <div class="empty-state" id="emptyState">Select a step from the sidebar</div>
+      <div class="links-panel" id="linksPanel" style="display:none">
+        <div class="links-section">
+          <h3>📄 Documents Galien 2026</h3>
+          <ul>
+            <li><a href="https://www.calameo.com/read/005925913f6d00c3bc70b" target="_blank">Media Kit 2026</a></li>
+            <li><a href="https://www.calameo.com/read/00592591362d875db33c5" target="_blank">Partnership Guide - Forum</a></li>
+            <li><a href="https://www.calameo.com/read/0059259136d1fb091381d" target="_blank">Partnership Guide - GPS</a></li>
+            <li><a href="https://www.calameo.com/read/005925913571f0f32d21d" target="_blank">Attendees 2025 - Forum</a></li>
+            <li><a href="https://www.calameo.com/read/005925913489cedd473a8" target="_blank">Attendees 2025 - Patient Summit</a></li>
+            <li><a href="https://www.calameo.com/read/0059259138aec21e7abb2" target="_blank">GPS Report - Inaugural Summit</a></li>
+            <li><a href="https://hubs.ly/Q04206dZ0" target="_blank">Patient First Award Charter</a></li>
+            <li><a href="https://www.calameo.com/read/0059259139adfed3db449" target="_blank">Patient First Award - Quick Fact Sheet</a></li>
+          </ul>
+        </div>
+        <div class="links-section">
+          <h3>📅 Programs 2025</h3>
+          <ul>
+            <li><a href="https://www.galienfoundation.org/galien-forum-usa-2025-program" target="_blank">Forum USA 2025 Program</a></li>
+            <li><a href="https://www.galienfoundation.org/galien-patient-summit-usa-2025-program" target="_blank">Patient Summit 2025 Program</a></li>
+          </ul>
+        </div>
+        <div class="links-section">
+          <h3>📋 Quick Fact Sheets (QFS)</h3>
+          <ul>
+            <li><a href="https://www.calameo.com/read/0059259134afd3f9cb7d2" target="_blank">QFS - Start-Up</a></li>
+            <li><a href="https://www.calameo.com/read/0059259138a24b5e2f5c7" target="_blank">QFS - Digital Health</a></li>
+            <li><a href="https://www.calameo.com/read/005925913bc2766e42bda" target="_blank">QFS - Incubator/Accelerator/Equity</a></li>
+            <li><a href="https://www.calameo.com/read/0059259139adfed3db449" target="_blank">QFS - Patient First Award</a></li>
+          </ul>
+        </div>
+        <div class="links-section">
+          <h3>🔗 Booking & Submission</h3>
+          <ul>
+            <li><a href="https://galienfoundation.org/meetings/pgusa/partners" target="_blank">Book Meeting - Partners</a></li>
+            <li><a href="https://galienfoundation.org/meetings/pgusa/nomination" target="_blank">Book Meeting - Nomination</a></li>
+            <li><a href="https://www.galienfoundation.org/sign-in" target="_blank">Submission Platform (Sign In)</a></li>
+          </ul>
+        </div>
+        <div class="links-section">
+          <h3>🎥 Resources</h3>
+          <ul>
+            <li><a href="https://youtu.be/XBZ4y4ftSM4" target="_blank">Submission Tutorial Video</a></li>
+            <li><a href="https://docs.google.com/spreadsheets/d/1CXQvAPqD9qMZonqpPtAiQaJjzJOcHr0Pk-5KpcUrpQs/edit?gid=0#gid=0" target="_blank">Albums Personnalisés PG USA 2025</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// =====================================================
+// DATA
+// =====================================================
+
+const PIPES = [
+  {id:"forum", label:"Partners Forum"},
+  {id:"gps", label:"Partners GPS"},
+  {id:"candidats", label:"Candidats"},
+  {id:"p1", label:"Candidats P1"}
+];
+
+const STEPS = {
+  "forum": [
+    {
+      "num": "0",
+      "name": "Call for Partners (MR)",
+      "status": "ok",
+      "source": "lem",
+      "tpl": "Call for Partners MR",
+      "docs": [
+        "Partnership Guide SS",
+        "Media Kit"
+      ],
+      "to": "",
+      "subject": "{{company}} - Invitation : 20th Prix Galien USA & 28th International Awards",
+      "html": "<div style=\"max-width: 600px; margin: 0px auto; background-color: rgb(255, 255, 255); padding: 0px 20px; box-sizing: border-box;\"><div style=\"display: none; max-height: 0px; overflow: hidden; box-sizing: border-box;\"> {{company}} — 20th Prix Galien USA &amp; Prix Galien International in NYC </div> &nbsp;<img height=\"145\" data-fr-image-pasted=\"true\" alt=\"Prix Galien USA logo\" width=\"386\" src=\"https://app.lemlist.com/api/files/Files/fil_CQkjsBFdi98d3uRck.png\" style=\"box-sizing: border-box; vertical-align: top; border-style: none; padding: 0px 1px; max-width: 100%; position: relative; cursor: pointer; user-select: none; width: 386px; display: block; margin: 5px auto; text-align: center;\" id=\"isPasted\">&nbsp; &nbsp;&nbsp;<p style=\"margin: 25px 0px 0px; font-size: 13px; line-height: 150%; box-sizing: border-box;\">Dear Colleague,<br style=\"box-sizing: border-box;\"><br style=\"box-sizing: border-box;\"></p><p style=\"text-align: justify; margin: 0px; font-size: 13px; line-height: 150%; box-sizing: border-box;\">On behalf of the Galien Foundation, I'm pleased to share an invitation to join us as a valued partner for the 2026 Prix Galien USA Awards Ceremony, Galien Forum USA and the Galien Patient Summit - flagship gatherings that celebrate the highest achievements in life sciences and global health innovation.</p><p style=\"text-align: justify; margin: 0px; font-size: 13px; line-height: 150%; box-sizing: border-box;\"><br style=\"box-sizing: border-box;\">The Prix Galien is recognized worldwide as the <strong style=\"font-weight: 700; box-sizing: border-box;\">equivalent of the Nobel Prize in biopharmaceutical research.</strong> Since its inception in 1970, it has honored transformative medical innovations that improve the human condition - with past laureates and speakers including Nobel Laureates, Heads of State, and industry pioneers.</p><p style=\"text-align: justify; margin: 0px; font-size: 13px; line-height: 150%; box-sizing: border-box;\"><br style=\"box-sizing: border-box;\">This year's events mark an <strong style=\"font-weight: 700; box-sizing: border-box;\">unprecedented milestone</strong>: for the first time ever, the <strong style=\"font-weight: 700; box-sizing: border-box;\">Prix Galien International Awards</strong> will be held in New York City, coinciding with the <strong style=\"font-weight: 700; box-sizing: border-box;\">20th Anniversary of the Prix Galien USA</strong>. Following the success of the 2024 International ceremony in Rome, this historic convergence will bring together laureates and leaders from over 20 countries to celebrate the most transformative innovations in life sciences - all under one roof at the American Museum of Natural History on <strong style=\"font-weight: 700; box-sizing: border-box;\">October 29th, 2026</strong>, with a prestigious VIP reception hosted the evening prior at the United Nations.</p><p style=\"text-align: justify; margin: 0px; font-size: 13px; line-height: 150%; box-sizing: border-box;\"><br style=\"box-sizing: border-box;\">The mission of the Galien Foundation is to serve as a vehicle for fostering the open exchange of ideas that drive science and new innovations. The Foundation's Forum of experts will feature roundtable discussions on critical global healthcare issues, followed that evening by the Prix Galien USA Awards honoring biomedical research and medical technology products that are improving human health.</p><p style=\"text-align: justify; margin: 0px; font-size: 13px; line-height: 150%; box-sizing: border-box;\"><br style=\"box-sizing: border-box;\">In this spirit, we are proud to host for the second consecutive year the Galien Patient Summit, which will run parallel to our prestigious Forum. The Summit represents the natural evolution of our mission, embracing the fundamental principle that those most affected by healthcare innovations must be central to their development. Under the guiding principle <strong style=\"font-weight: 700; box-sizing: border-box;\">\"No decision for me without me,\"</strong> we are creating a collaborative platform where patient voices directly shape the future of medical research, drug development, and healthcare delivery.</p><p style=\"text-align: justify; margin: 0px; font-size: 13px; line-height: 150%; box-sizing: border-box;\"><br style=\"box-sizing: border-box;\">We welcome your participation and the opportunity to collaborate with those in your organization who are making meaningful contributions to improving the human condition.</p><p style=\"text-align: justify; margin: 0px; font-size: 13px; line-height: 150%; box-sizing: border-box;\"><br style=\"box-sizing: border-box;\"></p><p style=\"margin: 0px; font-size: 13px; line-height: 150%; box-sizing: border-box;\">With our best personal regards,</p><div style=\"margin-top: 25px; box-sizing: border-box;\"><p style=\"margin: 0px; font-size: 13px; line-height: 150%; color: rgb(51, 51, 51); font-style: italic; font-weight: bold; box-sizing: border-box;\">Michael Rosenblatt, M.D.</p><p style=\"margin: 0px; font-size: 12px; line-height: 140%; box-sizing: border-box;\">Committee Chair, Prix Galien USA (Categories: Pharma, Biotech, Rare/Orphan)<br style=\"box-sizing: border-box;\">Co-chair, Galien Forum</p><p style=\"margin: 15px 0px 0px; font-size: 13px; line-height: 150%; color: rgb(51, 51, 51); font-style: italic; font-weight: bold; box-sizing: border-box;\">Kenneth C. Frazier</p><p style=\"margin: 0px; font-size: 12px; line-height: 140%; box-sizing: border-box;\">Committee Chair, Prix Galien USA (Categories: StartUp, Medical Technology, Incubator/Accelerator/Equity, Digital Health)<br style=\"box-sizing: border-box;\">Co-chair, Galien Forum</p><p style=\"margin: 15px 0px 0px; font-size: 13px; line-height: 150%; color: rgb(51, 51, 51); font-style: italic; font-weight: bold; box-sizing: border-box;\">Phillip A. Sharp, Ph.D.</p><p style=\"margin: 0px; font-size: 12px; line-height: 140%; box-sizing: border-box;\">Nobel Laureate, Committee Member, Prix Galien USA<br style=\"box-sizing: border-box;\">Co-chair, Galien Forum</p><p style=\"margin: 15px 0px 0px; font-size: 13px; line-height: 150%; color: rgb(51, 51, 51); font-style: italic; font-weight: bold; box-sizing: border-box;\">Marc Tessier-Lavigne, Ph.D.</p><p style=\"margin: 0px; font-size: 12px; line-height: 140%; box-sizing: border-box;\">Committee Member, Prix Galien USA<br style=\"box-sizing: border-box;\">Co-chair, Galien Forum</p></div><div style=\"font-size: 10px; line-height: 140%; color: rgb(68, 68, 68); margin-top: 25px; box-sizing: border-box;\"><p style=\"margin: 0px; font-size: 11px; line-height: 150%; font-weight: bold; box-sizing: border-box;\">Prix Galien Awards Committee</p><p style=\"margin: 0px 0px 5px; font-size: 13px; line-height: 150%; box-sizing: border-box; font-style: italic !important; font-weight: normal !important;\"><em style=\"box-sizing: border-box;\"><small style=\"font-size: 80%; font-weight: 400; box-sizing: border-box;\">Categories: Pharmaceutical, Biotechnology, Orphan/Rare Diseases</small></em></p><ul style=\"margin: 0px; padding-left: 15px; box-sizing: border-box;\"><li style=\"margin-bottom: 3px; box-sizing: border-box;\"><strong style=\"font-weight: 700; box-sizing: border-box;\">Dr. Michael ROSENBLATT</strong>, M.D., Member, Harvard Board of Overseers; Advisory Partner, Ascenta Capital; Senior Advisor, Bain Capital Life Sciences &amp; Flagship Pioneering; Committee Chair</li><li style=\"margin-bottom: 3px; box-sizing: border-box;\"><strong style=\"font-weight: 700; box-sizing: border-box;\">Dr. Linda BUCK</strong>, Ph.D., Nobel Laureate, Fred Hutchinson Cancer Research Center, University of Washington</li><li style=\"margin-bottom: 3px; box-sizing: border-box;\"><strong style=\"font-weight: 700; box-sizing: border-box;\">Dr. Sue DESMOND-HELLMANN</strong>, M.D., M.P.H., Former CEO, Bill &amp; Melinda Gates Foundation</li><li style=\"margin-bottom: 3px; box-sizing: border-box;\"><strong style=\"font-weight: 700; box-sizing: border-box;\">Dr. Laurie GLIMCHER</strong>, M.D., CEO &amp; President, Dana Farber Cancer Institute, Harvard Medical School</li><li style=\"margin-bottom: 3px; box-sizing: border-box;\"><strong style=\"font-weight: 700; box-sizing: border-box;\">Dr. Avram HERSHKO</strong>, M.D., Ph.D., Nobel Laureate, Technion - Israel Institute of Technology</li><li style=\"margin-bottom: 3px; box-sizing: border-box;\"><strong style=\"font-weight: 700; box-sizing: border-box;\">Dr. Mary-Claire KING</strong>, Ph.D., American Cancer Society Professor of Genome Sciences, University of Washington</li><li style=\"margin-bottom: 3px; box-sizing: border-box;\"><strong style=\"font-weight: 700; box-sizing: border-box;\">Dr. Cato T. LAURENCIN</strong>, M.D., Ph.D., University Professor, University of Connecticut</li><li style=\"margin-bottom: 3px; box-sizing: border-box;\"><strong style=\"font-weight: 700; box-sizing: border-box;\">Dr. Steven J. LESTER</strong>, M.D., Chief Medical Officer, Mayo Clinic-ASU MedTech Accelerator</li><li style=\"margin-bottom: 3px; box-sizing: border-box;\"><strong style=\"font-weight: 700; box-sizing: border-box;\">Dr. Stanley B. PRUSINER</strong>, M.D., Nobel Laureate, Professor of Neurology, UCSF</li><li style=\"margin-bottom: 3px; box-sizing: border-box;\"><strong style=\"font-weight: 700; box-sizing: border-box;\">Dr. Phillip A. SHARP</strong>, Ph.D., Nobel Laureate, Professor of Biology, MIT Koch Institute</li><li style=\"margin-bottom: 3px; box-sizing: border-box;\"><strong style=\"font-weight: 700; box-sizing: border-box;\">Dr. Marc TESSIER-LAVIGNE</strong>, Ph.D., Chairman and CEO, Xaira Therapeutics; President Emeritus, Stanford University</li><li style=\"margin-bottom: 3px; box-sizing: border-box;\"><strong style=\"font-weight: 700; box-sizing: border-box;\">Pr. Elie WIESEL</strong>, Peace Nobel Laureate, Honorary Founding President, In Memoriam</li></ul><p style=\"margin: 20px 0px 5px; font-size: 13px; line-height: 150%; box-sizing: border-box; font-style: italic !important; font-weight: normal !important;\"><em style=\"box-sizing: border-box;\"><small style=\"font-size: 80%; font-weight: 400; box-sizing: border-box;\">Categories: Medical Technology, Digital Health Solution, Incubators/Accelerators/Equity, Start-Up</small></em></p><ul style=\"margin: 0px; padding-left: 15px; box-sizing: border-box;\"><li style=\"margin-bottom: 3px; box-sizing: border-box;\"><strong style=\"font-weight: 700; box-sizing: border-box;\">Mr. Kenneth C. FRAZIER</strong>, J.D., Former Chairman &amp; CEO, Merck &amp; Co., Inc.; Committee Chair</li><li style=\"margin-bottom: 3px; box-sizing: border-box;\"><strong style=\"font-weight: 700; box-sizing: border-box;\">Dr. Roch DOLIVEUX</strong>, D.V.M., Honorary CEO, UCB</li><li style=\"margin-bottom: 3px; box-sizing: border-box;\"><strong style=\"font-weight: 700; box-sizing: border-box;\">Dr. Mikael DOLSTEN</strong>, M.D., Ph.D., Chairman &amp; Founding CEO, Quarry Thera; Former CSO, Pfizer</li><li style=\"margin-bottom: 3px; box-sizing: border-box;\"><strong style=\"font-weight: 700; box-sizing: border-box;\">Mr. Alex GORSKY</strong>, M.B.A., Former CEO &amp; Executive Chairman, Johnson &amp; Johnson</li><li style=\"margin-bottom: 3px; box-sizing: border-box;\"><strong style=\"font-weight: 700; box-sizing: border-box;\">Dr. Penny HEATON</strong>, M.D., Global Head, Office of the Chief Medical Officer, Johnson &amp; Johnson</li><li style=\"margin-bottom: 3px; box-sizing: border-box;\"><strong style=\"font-weight: 700; box-sizing: border-box;\">Ms. Sheri McCOY</strong>, M.Sc., M.B.A., Board of Directors, AstraZeneca; Former CEO, Avon</li><li style=\"margin-bottom: 3px; box-sizing: border-box;\"><strong style=\"font-weight: 700; box-sizing: border-box;\">Dr. Joel S. MARCUS</strong>, J.D., C.P.A., Executive Chairman &amp; Founder, Alexandria</li><li style=\"margin-bottom: 3px; box-sizing: border-box;\"><strong style=\"font-weight: 700; box-sizing: border-box;\">Dr. Elias ZERHOUNI</strong>, M.D., Former Director, U.S. National Institutes of Health; Former Head of Global R&amp;D, Sanofi</li></ul><p style=\"margin: 20px 0px 5px; font-size: 11px; line-height: 150%; font-weight: bold; box-sizing: border-box;\">Galien Patient Summit Steering Committee</p><ul style=\"margin: 0px; padding-left: 15px; box-sizing: border-box;\"><li style=\"margin-bottom: 3px; box-sizing: border-box;\"><strong style=\"font-weight: 700; box-sizing: border-box;\">Dr. Awa Marie COLL SECK</strong>, Chair of the Galien Africa; Former Minister of Health, Republic of Senegal</li><li style=\"margin-bottom: 3px; box-sizing: border-box;\"><strong style=\"font-weight: 700; box-sizing: border-box;\">Dr. Margaret HAMBURG</strong>, M.D., Foreign Secretary, National Academy of Medicine</li><li style=\"margin-bottom: 3px; box-sizing: border-box;\"><strong style=\"font-weight: 700; box-sizing: border-box;\">Dr. Julie Louise GERBERDING</strong>, M.D., M.P.H., President and CEO, Foundation for the NIH</li><li style=\"margin-bottom: 3px; box-sizing: border-box;\"><strong style=\"font-weight: 700; box-sizing: border-box;\">Dr. Steven J. LESTER</strong>, M.D., Medical Director, Discovery Oasis; Founder and CMO, Mayo Clinic-ASU Alliance for Health Care Accelerator</li><li style=\"margin-bottom: 3px; box-sizing: border-box;\"><strong style=\"font-weight: 700; box-sizing: border-box;\">Mr. Andrew SPIEGEL</strong>, Esq., Chairman, World Patient Alliance</li></ul></div><div style=\"font-size: 11px; color: rgb(102, 102, 102); text-align: center; margin-top: 30px; padding: 15px 0px; border-top: 1px solid rgb(238, 238, 238); box-sizing: border-box;\"><p style=\"margin: 0px; font-size: 13px; line-height: 150%; box-sizing: border-box;\">USA · The Galien Foundation, 99 John Street, Suite 2502, New York, New York 10038, USA, 212-685-1592</p><p style=\"margin: 10px 0px 0px; font-size: 13px; line-height: 150%; box-sizing: border-box;\">If this is not relevant to you, reply \"not relevant\" to this email</p></div></div>"
+    },
+    {
+      "num": "0b",
+      "name": "Reprise de contact",
+      "status": "no",
+      "source": "esp",
+      "tpl": ":forumreprise",
+      "docs": [
+        "Media Kit (2026)"
+      ],
+      "to": "[Salutation] [Last Name]",
+      "subject": "Prix Galien USA 2026 - 20th Anniversary",
+      "html": "Dear [Salutation] [Last Name],<br><br><span class='placeholder'>[A ECRIRE - Reprise de contact Partners Forum. Ton : nous etions en contact l'an dernier, fort du succes du Forum 2025, 20th anniversary...]</span><br><br>I remain at your disposal should you wish to learn more.<br><br>With many thanks and kind regards,<br><br>Edouard"
+    },
+    {
+      "num": "1",
+      "name": "Email 1",
+      "status": "fix",
+      "source": "lem",
+      "tpl": "Partners EC - E1",
+      "docs": [
+        "Aucun"
+      ],
+      "to": "{{salutationLastName}}",
+      "subject": "",
+      "html": "<span class='placeholder'>Charger depuis Lemlist : GPS 2026 Partners Campaign EC - E1.html</span>"
+    },
+    {
+      "num": "2",
+      "name": "Email 2",
+      "status": "fix",
+      "source": "lem",
+      "tpl": "Partners EC - E2",
+      "docs": [
+        "Media Kit"
+      ],
+      "to": "{{salutationLastName}}",
+      "subject": "",
+      "html": "<span class='placeholder'>Charger depuis Lemlist : GPS 2026 Partners Campaign EC - E2.html</span>"
+    },
+    {
+      "num": "3",
+      "name": "Email 3",
+      "status": "fix",
+      "source": "lem",
+      "tpl": "Partners EC - E3",
+      "docs": [
+        "Partnership Summary"
+      ],
+      "to": "{{salutationLastName}}",
+      "subject": "",
+      "html": "<span class='placeholder'>Charger depuis Lemlist : GPS 2026 Partners Campaign EC - E3.html</span>"
+    },
+    {
+      "num": "4",
+      "name": "LinkedIn 1",
+      "status": "ok",
+      "source": "lem",
+      "tpl": "Partners LI - E1",
+      "docs": [
+        "Aucun"
+      ],
+      "to": "",
+      "subject": "",
+      "html": "<span class='placeholder'>Charger depuis Lemlist : GPS 2026 Partners LinkedIn EC - E1.html</span>"
+    },
+    {
+      "num": "5",
+      "name": "LinkedIn 2",
+      "status": "ok",
+      "source": "lem",
+      "tpl": "Partners LI - E2",
+      "docs": [
+        "Aucun"
+      ],
+      "to": "",
+      "subject": "",
+      "html": "<span class='placeholder'>Charger depuis Lemlist</span>"
+    },
+    {
+      "num": "6",
+      "name": "LinkedIn 3",
+      "status": "ok",
+      "source": "lem",
+      "tpl": "Partners LI - E3",
+      "docs": [
+        "Aucun"
+      ],
+      "to": "",
+      "subject": "",
+      "html": "<span class='placeholder'>Charger depuis Lemlist</span>"
+    },
+    {
+      "num": "7",
+      "name": "Journey",
+      "status": "fix",
+      "source": "esp",
+      "tpl": ":journeypartners",
+      "docs": [
+        "Media Kit",
+        "Programs 2025",
+        "Attendees 2025"
+      ],
+      "to": "[Salutation] [Last Name]",
+      "subject": "Prix Galien USA 2026 - Partnership Opportunities",
+      "html": "Dear [Salutation] [Last Name],<br><br>Thank you for reaching out.<br><br>I am pleased to share more details about the Prix Galien USA, an initiative I volunteer alongside our Forum Co-Chairs, <b>Kenneth C. Frazier</b>, Retired Chairman and CEO, Merck & Co., Inc., and <b>Dr. Michael Rosenblatt</b>, Member, Harvard Board of Overseers; Advisory Partner, Ascenta Capital & Flagship Pioneering, and the Galien Foundation.<br><br>Under the legacy of <b>Professor Elie Wiesel</b> - Honorary Founding President, Peace Nobel Laureate, and Holocaust survivor - the Galien Foundation is guided by the conviction that science and innovation must always serve people with dignity, compassion, and justice. At the heart of this mission, the Prix Galien - often referred to as the Nobel Prize of life sciences research - recognizes the most outstanding achievements in improving the human condition.<br><br><b>2026 will be an exceptional year:</b> we are celebrating the <b>20th anniversary of the Prix Galien USA</b> alongside the <b>International Prix Galien</b>, bringing together all worldwide winners from the past two years. We already have confirmations that <b>Albert Bourla</b> (Pfizer), <b>Joaquin Duato</b> (J&J), and <b>Thomas Schinecker</b> (Roche) will be joining us at the Forum.<br><br><b>Past speakers and board members include:</b><br><ul><li>Dr. Eric Topol (Scripps Research Translational Institute)</li><li>Dr. Paul Stoffels (Galapagos)</li><li>Dr. Robert Califf (Former FDA Commissioner)</li></ul>We deeply value [Company]'s leadership and would be delighted to explore how we might welcome you into this year's program. To help you get a sense of the scope and the experience, please find enclosed:<br><ul><li><a href=\"https://www.calameo.com/read/005925913f6d00c3bc70b\">Media Kit 2026</a></li><li>Last year's programs: <a href=\"https://www.galienfoundation.org/galien-forum-usa-2025-program\">Forum</a> (keynote delivered by FDA Commissioner Marty Makary) | <a href=\"https://www.galienfoundation.org/galien-patient-summit-usa-2025-program\">Patient Summit</a></li><li>List of 2025 Attendees (download for Excel format): <a href=\"https://www.calameo.com/read/005925913571f0f32d21d\">Forum</a> | <a href=\"https://www.calameo.com/read/005925913489cedd473a8\">Patient Summit</a></li><li>Partnership Guide: <a href=\"https://www.calameo.com/read/00592591362d875db33c5\">Forum</a> | <a href=\"https://www.calameo.com/read/0059259136d1fb091381d\">GPS</a></li></ul>If it's relevant and if you are available, I would be delighted to discuss with you and answer your questions. Would you be available on [date/time] EST for a call?<br><br>With many thanks and kind regards,<br><br>Edouard"
+    },
+    {
+      "num": "8",
+      "name": "FU Journey",
+      "status": "no",
+      "source": "esp",
+      "tpl": ":forumfujourney",
+      "docs": [
+        "Aucun"
+      ],
+      "to": "[Salutation] [Last Name]",
+      "subject": "Re: Prix Galien USA 2026",
+      "html": "Dear [Salutation] [Last Name],<br><br><span class='placeholder'>[A ECRIRE - Relance courte apres journey. 3-4 lignes max. Reprendre le sujet exact.]</span><br><br>I remain available.<br><br>Warm regards,<br><br>Edouard"
+    },
+    {
+      "num": "9",
+      "name": "After Meeting",
+      "status": "no",
+      "source": "esp",
+      "tpl": ":afterpartners",
+      "docs": [
+        "Partnership Guide",
+        "Media Kit",
+        "Programs 2025",
+        "Attendees 2025"
+      ],
+      "to": "[First Name]",
+      "subject": "Following up - Prix Galien USA 2026 Partnership",
+      "html": "Dear [First Name],<br><br>It was a great pleasure meeting you. Thank you for your time today.<br><br><span class='placeholder'>[A ECRIRE - After meeting Forum partner. Recap discussion, docs joints, next steps.]</span><br><br>With many thanks and kind regards,<br><br>Edouard"
+    },
+    {
+      "num": "10",
+      "name": "FU After Meeting",
+      "status": "no",
+      "source": "esp",
+      "tpl": ":forumfuafter",
+      "docs": [
+        "Aucun"
+      ],
+      "to": "[First Name]",
+      "subject": "Re: Following up - Prix Galien USA 2026 Partnership",
+      "html": "Dear [First Name],<br><br><span class='placeholder'>[A ECRIRE - Relance courte apres after-meeting. 3-4 lignes max.]</span><br><br>I remain available.<br><br>Warm regards,<br><br>Edouard"
+    }
+  ],
+  "gps": [
+    {
+      "num": "0",
+      "name": "Call for GPS Partners",
+      "status": "no",
+      "source": "lem",
+      "tpl": "Call for GPS Partners",
+      "docs": [
+        "GPS Report",
+        "Charter",
+        "Media Kit"
+      ],
+      "to": "",
+      "subject": "",
+      "html": "<span class='placeholder'>[A CREER - Eblast officiel GPS Partners]</span>"
+    },
+    {
+      "num": "0b",
+      "name": "Reprise de contact",
+      "status": "no",
+      "source": "esp",
+      "tpl": ":gpsreprise",
+      "docs": [
+        "GPS Report",
+        "Media Kit"
+      ],
+      "to": "[Salutation] [Last Name]",
+      "subject": "Galien Patient Summit 2026",
+      "html": "Dear [Salutation] [Last Name],<br><br><span class='placeholder'>[A ECRIRE - Reprise de contact GPS. Ton : succes du Patient Summit inaugural, Patient First Award, 2026...]</span><br><br>I remain at your disposal.<br><br>With many thanks and kind regards,<br><br>Edouard"
+    },
+    {
+      "num": "1",
+      "name": "Email 1",
+      "status": "no",
+      "source": "lem",
+      "tpl": "GPS Partners EC - E1",
+      "docs": [
+        "Aucun"
+      ],
+      "to": "{{salutationLastName}}",
+      "subject": "",
+      "html": "<span class='placeholder'>[A CREER - GPS Partners outreach E1]</span>"
+    },
+    {
+      "num": "2",
+      "name": "Email 2",
+      "status": "no",
+      "source": "lem",
+      "tpl": "GPS Partners EC - E2",
+      "docs": [
+        "GPS Report"
+      ],
+      "to": "{{salutationLastName}}",
+      "subject": "",
+      "html": "<span class='placeholder'>[A CREER - GPS Partners outreach E2]</span>"
+    },
+    {
+      "num": "3",
+      "name": "Email 3",
+      "status": "no",
+      "source": "lem",
+      "tpl": "GPS Partners EC - E3",
+      "docs": [
+        "Partnership Summary GPS"
+      ],
+      "to": "{{salutationLastName}}",
+      "subject": "",
+      "html": "<span class='placeholder'>[A CREER - GPS Partners outreach E3]</span>"
+    },
+    {
+      "num": "4",
+      "name": "LinkedIn 1",
+      "status": "no",
+      "source": "lem",
+      "tpl": "GPS Partners LI - E1",
+      "docs": [
+        "Aucun"
+      ],
+      "to": "",
+      "subject": "",
+      "html": "<span class='placeholder'>[A CREER - GPS Partners LinkedIn 1]</span>"
+    },
+    {
+      "num": "5",
+      "name": "LinkedIn 2",
+      "status": "no",
+      "source": "lem",
+      "tpl": "GPS Partners LI - E2",
+      "docs": [
+        "Aucun"
+      ],
+      "to": "",
+      "subject": "",
+      "html": "<span class='placeholder'>[A CREER]</span>"
+    },
+    {
+      "num": "6",
+      "name": "LinkedIn 3",
+      "status": "no",
+      "source": "lem",
+      "tpl": "GPS Partners LI - E3",
+      "docs": [
+        "Aucun"
+      ],
+      "to": "",
+      "subject": "",
+      "html": "<span class='placeholder'>[A CREER]</span>"
+    },
+    {
+      "num": "7",
+      "name": "Journey",
+      "status": "no",
+      "source": "esp",
+      "tpl": ":journeygps",
+      "docs": [
+        "Media Kit",
+        "GPS Report",
+        "Charter",
+        "Patient First QFS"
+      ],
+      "to": "[Salutation] [Last Name]",
+      "subject": "Galien Patient Summit 2026 - Partnership",
+      "html": "Dear [Salutation] [Last Name],<br><br>Thank you for reaching out.<br><br><span class='placeholder'>[A ECRIRE - GPS Journey partner. Patient Summit mission, Patient First Award, 20th anniversary...]</span><br><br>With many thanks and kind regards,<br><br>Edouard"
+    },
+    {
+      "num": "8",
+      "name": "FU Journey",
+      "status": "no",
+      "source": "esp",
+      "tpl": ":gpsfujourney",
+      "docs": [
+        "Aucun"
+      ],
+      "to": "[Salutation] [Last Name]",
+      "subject": "Re: Galien Patient Summit 2026",
+      "html": "Dear [Salutation] [Last Name],<br><br><span class='placeholder'>[A ECRIRE - Relance courte]</span><br><br>I remain available.<br><br>Warm regards,<br><br>Edouard"
+    },
+    {
+      "num": "9",
+      "name": "After Meeting",
+      "status": "no",
+      "source": "esp",
+      "tpl": ":aftergpspartner",
+      "docs": [
+        "Partnership Guide GPS",
+        "Charter",
+        "GPS Report",
+        "Programs 2025",
+        "Attendees GPS 2025"
+      ],
+      "to": "[First Name]",
+      "subject": "Following up - Galien Patient Summit 2026 Partnership",
+      "html": "Dear [First Name],<br><br>It was a great pleasure meeting you. Thank you for your time today.<br><br><span class='placeholder'>[A ECRIRE - After meeting GPS partner]</span><br><br>With many thanks and kind regards,<br><br>Edouard"
+    },
+    {
+      "num": "10",
+      "name": "FU After Meeting",
+      "status": "no",
+      "source": "esp",
+      "tpl": ":gpsfuafter",
+      "docs": [
+        "Aucun"
+      ],
+      "to": "[First Name]",
+      "subject": "Re: Galien Patient Summit 2026",
+      "html": "Dear [First Name],<br><br><span class='placeholder'>[A ECRIRE - Relance courte]</span><br><br>I remain available.<br><br>Warm regards,<br><br>Edouard"
+    }
+  ],
+  "candidats": [
+    {
+      "num": "0",
+      "name": "Call for Candidates (KF)",
+      "status": "ok",
+      "source": "lem",
+      "tpl": "Call for Candidates V2",
+      "docs": [
+        "QFS (par categorie)",
+        "Media Kit"
+      ],
+      "to": "",
+      "subject": "",
+      "html": "<span class='placeholder'>Eblast officiel - voir fichier Lemlist</span>"
+    },
+    {
+      "num": "0b",
+      "name": "Reprise de contact",
+      "status": "no",
+      "source": "esp",
+      "tpl": ":candidatsreprise",
+      "docs": [
+        "QFS (nouveau)"
+      ],
+      "to": "[First Name]",
+      "subject": "Prix Galien USA 2026 - 20th Anniversary",
+      "html": "Dear [First Name],<br><br><span class='placeholder'>[A ECRIRE - Reprise candidats. Ton : 20th anniversary, International PG, deadline approaching...]</span><br><br>With many thanks and kind regards,<br><br>Edouard"
+    },
+    {
+      "num": "1",
+      "name": "Email 1",
+      "status": "ok",
+      "source": "lem",
+      "tpl": "Candidates EC - E1",
+      "docs": [
+        "Aucun"
+      ],
+      "to": "{{salutationLastName}}",
+      "subject": "",
+      "html": "<span class='placeholder'>Charger depuis Lemlist : PG USA 2026 Candidates Campaign EC - E1.html</span>"
+    },
+    {
+      "num": "2",
+      "name": "Email 2",
+      "status": "ok",
+      "source": "lem",
+      "tpl": "Candidates EC - E2",
+      "docs": [
+        "QFS"
+      ],
+      "to": "{{salutationLastName}}",
+      "subject": "",
+      "html": "<span class='placeholder'>Charger depuis Lemlist</span>"
+    },
+    {
+      "num": "3",
+      "name": "Email 3",
+      "status": "ok",
+      "source": "lem",
+      "tpl": "Candidates EC - E3",
+      "docs": [
+        "Media Kit"
+      ],
+      "to": "{{salutationLastName}}",
+      "subject": "",
+      "html": "<span class='placeholder'>Charger depuis Lemlist</span>"
+    },
+    {
+      "num": "4",
+      "name": "LinkedIn 1",
+      "status": "ok",
+      "source": "lem",
+      "tpl": "Candidates LI - E1",
+      "docs": [
+        "Aucun"
+      ],
+      "to": "",
+      "subject": "",
+      "html": "<span class='placeholder'>Charger depuis Lemlist</span>"
+    },
+    {
+      "num": "5",
+      "name": "LinkedIn 2",
+      "status": "ok",
+      "source": "lem",
+      "tpl": "Candidates LI - E2",
+      "docs": [
+        "Aucun"
+      ],
+      "to": "",
+      "subject": "",
+      "html": "<span class='placeholder'>Charger depuis Lemlist</span>"
+    },
+    {
+      "num": "6",
+      "name": "LinkedIn 3",
+      "status": "ok",
+      "source": "lem",
+      "tpl": "Candidates LI - E3",
+      "docs": [
+        "Aucun"
+      ],
+      "to": "",
+      "subject": "",
+      "html": "<span class='placeholder'>Charger depuis Lemlist</span>"
+    },
+    {
+      "num": "7",
+      "name": "Journey",
+      "status": "ok",
+      "source": "esp",
+      "tpl": ":journeysu / :journeydh / :journeyiae",
+      "docs": [
+        "QFS (categorie)",
+        "Media Kit",
+        "Past winners"
+      ],
+      "to": "[First Name]",
+      "subject": "Prix Galien USA 2026 - The Journey Begins",
+      "html": "<span class='placeholder'>Plusieurs variantes par categorie - voir sidebar Espanso</span>"
+    },
+    {
+      "num": "8",
+      "name": "FU Journey",
+      "status": "no",
+      "source": "esp",
+      "tpl": ":candidatsfujourney",
+      "docs": [
+        "Aucun"
+      ],
+      "to": "[First Name]",
+      "subject": "Re: Prix Galien USA 2026",
+      "html": "Dear [First Name],<br><br><span class='placeholder'>[A ECRIRE - Relance courte candidats. Rappel deadline, offre d'aide.]</span><br><br>I remain available to review your submission.<br><br>Warm regards,<br><br>Edouard"
+    },
+    {
+      "num": "9",
+      "name": "After Meeting",
+      "status": "ok",
+      "source": "esp",
+      "tpl": ":afterdh / :aftersu / :afteriae / :afterpharma",
+      "docs": [
+        "Submission Form",
+        "QFS",
+        "Video tuto",
+        "Media Kit",
+        "Programs 2025",
+        "Attendees 2025"
+      ],
+      "to": "[First Name]",
+      "subject": "Following up - Prix Galien USA 2026",
+      "html": "<span class='placeholder'>Plusieurs variantes par categorie - voir sidebar Espanso</span>"
+    },
+    {
+      "num": "10",
+      "name": "FU After Meeting",
+      "status": "no",
+      "source": "esp",
+      "tpl": ":candidatsfuafter",
+      "docs": [
+        "Aucun"
+      ],
+      "to": "[First Name]",
+      "subject": "Re: Prix Galien USA 2026 - Submission",
+      "html": "Dear [First Name],<br><br><span class='placeholder'>[A ECRIRE - Relance courte apres meeting candidat. Rappel deadline, offre review.]</span><br><br>I remain available.<br><br>Warm regards,<br><br>Edouard"
+    }
+  ],
+  "p1": [
+    {
+      "num": "0",
+      "name": "Call for P1 Candidates",
+      "status": "no",
+      "source": "lem",
+      "tpl": "Call for P1 Candidates",
+      "docs": [
+        "Patient First QFS",
+        "Charter",
+        "GPS Report"
+      ],
+      "to": "",
+      "subject": "",
+      "html": "<span class='placeholder'>[A CREER - Eblast Patient First]</span>"
+    },
+    {
+      "num": "0b",
+      "name": "Reprise de contact",
+      "status": "no",
+      "source": "esp",
+      "tpl": ":p1reprise",
+      "docs": [
+        "Patient First QFS"
+      ],
+      "to": "[First Name]",
+      "subject": "Patient First Award 2026",
+      "html": "Dear [First Name],<br><br><span class='placeholder'>[A ECRIRE - Reprise P1. Ton : succes GPS inaugural, Patient First Award, 2026...]</span><br><br>With many thanks and kind regards,<br><br>Edouard"
+    },
+    {
+      "num": "1",
+      "name": "Email 1",
+      "status": "ok",
+      "source": "lem",
+      "tpl": "P1 Candidates EC - E1",
+      "docs": [
+        "Aucun"
+      ],
+      "to": "{{salutationLastName}}",
+      "subject": "",
+      "html": "<span class='placeholder'>Charger depuis Lemlist</span>"
+    },
+    {
+      "num": "2",
+      "name": "Email 2",
+      "status": "ok",
+      "source": "lem",
+      "tpl": "P1 Candidates EC - E2",
+      "docs": [
+        "Patient First QFS"
+      ],
+      "to": "{{salutationLastName}}",
+      "subject": "",
+      "html": "<span class='placeholder'>Charger depuis Lemlist</span>"
+    },
+    {
+      "num": "3",
+      "name": "Email 3",
+      "status": "ok",
+      "source": "lem",
+      "tpl": "P1 Candidates EC - E3",
+      "docs": [
+        "Charter"
+      ],
+      "to": "{{salutationLastName}}",
+      "subject": "",
+      "html": "<span class='placeholder'>Charger depuis Lemlist</span>"
+    },
+    {
+      "num": "4",
+      "name": "LinkedIn 1",
+      "status": "ok",
+      "source": "lem",
+      "tpl": "P1 Candidates LI - E1",
+      "docs": [
+        "Aucun"
+      ],
+      "to": "",
+      "subject": "",
+      "html": "<span class='placeholder'>Charger depuis Lemlist</span>"
+    },
+    {
+      "num": "5",
+      "name": "LinkedIn 2",
+      "status": "ok",
+      "source": "lem",
+      "tpl": "P1 Candidates LI - E2",
+      "docs": [
+        "Aucun"
+      ],
+      "to": "",
+      "subject": "",
+      "html": "<span class='placeholder'>Charger depuis Lemlist</span>"
+    },
+    {
+      "num": "6",
+      "name": "LinkedIn 3",
+      "status": "ok",
+      "source": "lem",
+      "tpl": "P1 Candidates LI - E3",
+      "docs": [
+        "Aucun"
+      ],
+      "to": "",
+      "subject": "",
+      "html": "<span class='placeholder'>Charger depuis Lemlist</span>"
+    },
+    {
+      "num": "7",
+      "name": "Journey",
+      "status": "ok",
+      "source": "esp",
+      "tpl": ":journeyp1",
+      "docs": [
+        "Patient First QFS",
+        "Charter",
+        "GPS Report",
+        "Media Kit"
+      ],
+      "to": "[First Name]",
+      "subject": "Patient First Award - The Journey Begins",
+      "html": "Dear [First Name],<br><br>I hope this message finds you well.<br><br>Thank you for your interest in the <b>Patient First Award</b> - it's a pleasure to welcome you.<br><br>Last October, we launched the inaugural <b>Galien Patient Summit</b> - an initiative I had the pleasure to volunteer alongside <b>Dr. Julie Gerberding</b>, Chief Executive Officer of the Foundation for the National Institutes of Health, <b>Dr. Margaret Hamburg</b>, Foreign Secretary of the National Academy of Medicine, and the Galien Foundation. Built on a simple principle - <b>\"No decision for me without me\"</b> - the Summit brought together leaders from industry, patient advocacy, and regulation around a shared mission.<br><br>Building on the success of this first edition, and to keep advancing our mission, we created the <b>Patient First Award</b> to recognize organizations that are either patient-led or embedding the patient voice into their innovation process - not as an afterthought, but as a true partnership.<br><br><b>2026 will be an exceptional year:</b> we are celebrating the <b>20th anniversary of the Prix Galien USA</b> alongside the <b>International Prix Galien</b>, bringing together all worldwide winners from the past two years.<br><br><b>Here's what you need to know:</b><br><ul><li>The Patient First Award ceremony will take place during the <b>Galien Patient Summit</b></li><li>Date: October 29, 2026</li><li>Venue: American Museum of Natural History, New York City</li><li>Submission Deadline: May 30th, 2026</li><li>You can revisit your submission <a href=\"https://www.galienfoundation.org/sign-in\">here</a> (<i>Important: select \"Prix Galien USA\"</i>)</li></ul><b>Resources:</b><br><ul><li><a href=\"https://www.calameo.com/read/0059259139adfed3db449\">Patient First Award Quick Fact Sheet</a></li><li><a href=\"https://hubs.ly/Q04206dZ0\">Patient First Award Charter</a></li><li><a href=\"https://www.calameo.com/read/0059259138aec21e7abb2\">Inaugural Galien Patient Summit - Report and Steps Forward</a></li><li><a href=\"https://www.calameo.com/read/005925913f6d00c3bc70b\">Mediakit 2026</a></li></ul><b>Support:</b> I'm here to assist with any questions. You can also <a href=\"https://galienfoundation.org/meetings/pgusa/nomination\">book a meeting</a> with me anytime.<br><br>We would be honored to count [Company Name] among the nominees advancing our Patient First mission.<br><br>With many thanks and warm regards,<br><br>Edouard Cohen"
+    },
+    {
+      "num": "8",
+      "name": "FU Journey",
+      "status": "no",
+      "source": "esp",
+      "tpl": ":p1fujourney",
+      "docs": [
+        "Aucun"
+      ],
+      "to": "[First Name]",
+      "subject": "Re: Patient First Award 2026",
+      "html": "Dear [First Name],<br><br><span class='placeholder'>[A ECRIRE - Relance courte P1]</span><br><br>I remain available.<br><br>Warm regards,<br><br>Edouard"
+    },
+    {
+      "num": "9",
+      "name": "After Meeting",
+      "status": "ok",
+      "source": "esp",
+      "tpl": ":aftergps",
+      "docs": [
+        "Submission Form P1",
+        "QFS P1",
+        "Charter",
+        "GPS Report",
+        "Programs 2025",
+        "Attendees 2025"
+      ],
+      "to": "[First Name]",
+      "subject": "Following up - Patient First Award 2026",
+      "html": "Dear [First Name],<br><br>It was a great pleasure meeting you, Thank you for your time today. Please find enclosed detailed information regarding The Galien Patient Summit and the Patient-First Award:<br><ul><li><a href=\"https://www.calameo.com/read/005925913f6d00c3bc70b\">Prix Galien USA MediaKit</a></li><li><a href=\"https://hubs.ly/Q04206dZ0\">Patient First Award Charter</a></li><li><a href=\"https://www.calameo.com/read/0059259139adfed3db449\">Patient First Award - Quick Fact Sheet</a></li><li><a href=\"https://www.calameo.com/read/005925913059f9ef99348\">Patient First Award Submission form (download for Word format)</a></li><li>To get familiar with the submission process you can watch the video <a href=\"https://youtu.be/XBZ4y4ftSM4\">here</a>.</li><li>The Prix Galien USA - <a href=\"https://www.calameo.com/read/0059259136d41de620578\">Today's presentation</a></li><li>Last year's programs: <a href=\"https://www.galienfoundation.org/galien-forum-usa-2025-program\">Forum</a> | <a href=\"https://www.galienfoundation.org/galien-patient-summit-usa-2025-program\">Patient Summit</a></li><li>List of 2025 Attendees: <a href=\"https://www.calameo.com/read/005925913571f0f32d21d\">Forum</a> | <a href=\"https://www.calameo.com/read/005925913489cedd473a8\">Patient Summit</a></li><li><a href=\"https://www.calameo.com/read/0059259138aec21e7abb2\">Inaugural Galien Patient Summit - Report and Steps Forward</a></li><li>To start your submission, you can log in <a href=\"https://www.galienfoundation.org/sign-in\">HERE</a> and create your account.</li></ul>We would be delighted to count [Company Name] among the nominees that stand to advance our Patient First mission.<br><br>As mentioned, I remain available for any additional questions, and to review your submission.<br><br>Wishing you a beautiful week,<br><br>With many thanks and kind regards,<br><br>Edouard"
+    },
+    {
+      "num": "10",
+      "name": "FU After Meeting",
+      "status": "no",
+      "source": "esp",
+      "tpl": ":p1fuafter",
+      "docs": [
+        "Aucun"
+      ],
+      "to": "[First Name]",
+      "subject": "Re: Patient First Award 2026",
+      "html": "Dear [First Name],<br><br><span class='placeholder'>[A ECRIRE - Relance courte]</span><br><br>I remain available.<br><br>Warm regards,<br><br>Edouard"
+    }
+  ]
+};
+
+// =====================================================
+// ENGINE
+// =====================================================
+
+let currentPipe = "forum";
+let currentStep = null;
+
+function init() {
+  const el = document.getElementById('pipelines');
+  PIPES.forEach(p => {
+    const steps = STEPS[p.id];
+    const missing = steps.filter(s => s.status === 'no').length;
+    const fix = steps.filter(s => s.status === 'fix').length;
+    const tab = document.createElement('div');
+    tab.className = 'pipe-tab' + (p.id === currentPipe ? ' active' : '');
+    tab.innerHTML = p.label + (missing > 0 ? '<span class="pipe-count">' + missing + ' missing</span>' : '');
+    tab.onclick = () => selectPipe(p.id);
+    tab.dataset.id = p.id;
+    el.appendChild(tab);
+  });
+  renderSteps();
+}
+
+function selectPipe(id) {
+  currentPipe = id;
+  currentStep = null;
+  document.querySelectorAll('.pipe-tab').forEach(t => t.classList.toggle('active', t.dataset.id === id));
+
+  if (id === 'links') {
+    // Show links panel
+    document.getElementById('sidebar').style.display = 'none';
+    document.getElementById('compose').style.display = 'none';
+    document.getElementById('infoBar').style.display = 'none';
+    document.getElementById('emptyState').style.display = 'none';
+    document.getElementById('linksPanel').style.display = 'block';
+  } else {
+    // Show normal editor
+    document.getElementById('sidebar').style.display = 'block';
+    document.getElementById('linksPanel').style.display = 'none';
+    renderSteps();
+    document.getElementById('compose').style.display = 'none';
+    document.getElementById('infoBar').style.display = 'none';
+    document.getElementById('emptyState').style.display = 'flex';
+  }
+}
+
+function renderSteps() {
+  if (currentPipe === 'links') return; // Skip for links panel
+  const el = document.getElementById('sidebar');
+  el.innerHTML = '';
+  STEPS[currentPipe].forEach((s, i) => {
+    const div = document.createElement('div');
+    div.className = 'step-item' + (currentStep === i ? ' active' : '');
+    const statusTag = s.status === 'ok' ? '<span class="tag tag-ok">OK</span>' : s.status === 'fix' ? '<span class="tag tag-fix">Fix</span>' : '<span class="tag tag-no">Missing</span>';
+    const sourceTag = s.source === 'lem' ? '<span class="tag tag-lem">Lemlist</span>' : '<span class="tag tag-esp">Espanso</span>';
+
+    // Show input for ALL templates
+    const triggerInput = '<div class="espanso-input"><input type="text" value="' + (s.tpl || '') + '" placeholder=":trigger" onchange="updateTrigger(' + i + ', this.value)" onclick="event.stopPropagation()"></div>';
+
+    div.innerHTML = '<div class="step-num">' + s.num + '</div><div class="step-info"><div class="step-name">' + s.name + '</div><div class="step-meta">' + statusTag + sourceTag + '</div>' + triggerInput + '</div>';
+    div.onclick = () => selectStep(i);
+    el.appendChild(div);
+  });
+}
+
+function selectStep(i) {
+  currentStep = i;
+  const s = STEPS[currentPipe][i];
+  renderSteps();
+
+  document.getElementById('emptyState').style.display = 'none';
+  document.getElementById('compose').style.display = 'block';
+  document.getElementById('infoBar').style.display = 'flex';
+
+  document.getElementById('fieldTo').value = s.to;
+  document.getElementById('fieldSubject').value = s.subject;
+  document.getElementById('fieldBody').innerHTML = s.html;
+
+  const statusTag = s.status === 'ok' ? '<span class="tag tag-ok">OK</span>' : s.status === 'fix' ? '<span class="tag tag-fix">A revoir</span>' : '<span class="tag tag-no">A creer</span>';
+  const sourceTag = s.source === 'lem' ? '<span class="tag tag-lem">Lemlist</span>' : '<span class="tag tag-esp">Espanso</span>';
+
+  document.getElementById('infoBar').innerHTML =
+    '<div class="info-left"><h2>' + s.name + ' <small style="font-weight:400;font-size:12px;color:#80868b">(' + s.tpl + ')</small></h2><div class="info-tags">' + statusTag + sourceTag + '</div></div>' +
+    '<div class="info-docs"><b>Documents:</b><ul>' + s.docs.map(d => '<li>' + d + '</li>').join('') + '</ul></div>';
+}
+
+function copyHTML() {
+  navigator.clipboard.writeText(document.getElementById('fieldBody').innerHTML).then(() => {
+    document.getElementById('toast').textContent = 'HTML copied!';
+    setTimeout(() => document.getElementById('toast').textContent = '', 2000);
+  });
+}
+
+function copyText() {
+  navigator.clipboard.writeText(document.getElementById('fieldBody').innerText).then(() => {
+    document.getElementById('toast').textContent = 'Text copied!';
+    setTimeout(() => document.getElementById('toast').textContent = '', 2000);
+  });
+}
+
+function updateTrigger(stepIndex, newTrigger) {
+  STEPS[currentPipe][stepIndex].tpl = newTrigger;
+}
+
+function saveStep() {
+  if (currentStep === null) return;
+  const s = STEPS[currentPipe][currentStep];
+
+  // Update the step data
+  s.to = document.getElementById('fieldTo').value;
+  s.subject = document.getElementById('fieldSubject').value;
+  s.html = document.getElementById('fieldBody').innerHTML;
+
+  // Prepare save payload
+  const payload = {
+    steps: STEPS,
+    source: s.source,
+    espansoTrigger: s.tpl && s.tpl.startsWith(':') ? s.tpl : null,
+    subject: s.subject,
+    body: s.html
+  };
+
+  // Send to server
+  document.getElementById('toast').textContent = 'Saving...';
+  fetch('http://localhost:3456/save', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(payload)
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.success) {
+      document.getElementById('toast').textContent = '✓ Saved successfully!';
+      document.getElementById('toast').style.color = '#34a853';
+    } else {
+      document.getElementById('toast').textContent = '✗ Save failed: ' + data.error;
+      document.getElementById('toast').style.color = '#ea4335';
+    }
+    setTimeout(() => {
+      document.getElementById('toast').textContent = '';
+      document.getElementById('toast').style.color = '#34a853';
+    }, 3000);
+  })
+  .then(() => renderSteps()) // Re-render to show updated trigger
+  .catch(err => {
+    document.getElementById('toast').textContent = '✗ Server not running. Start: node ~/email-editor-server.js';
+    document.getElementById('toast').style.color = '#ea4335';
+    setTimeout(() => {
+      document.getElementById('toast').textContent = '';
+      document.getElementById('toast').style.color = '#34a853';
+    }, 4000);
+  });
+}
+
+init();
+</script>
+</body>
+</html>
