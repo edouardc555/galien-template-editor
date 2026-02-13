@@ -49,14 +49,11 @@
   .info-bar { background: #fff; border-bottom: 1px solid #dadce0; padding: 12px 20px; display: flex; justify-content: space-between; align-items: flex-start; }
   .info-left h2 { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
   .info-left .info-tags { display: flex; gap: 4px; flex-wrap: wrap; }
-  .info-docs { font-size: 11px; color: #5f6368; text-align: right; max-width: 400px; }
-  .info-docs b { color: #202124; font-size: 12px; }
-  .info-docs ul { list-style: none; margin-top: 4px; }
-  .info-docs li { margin-bottom: 4px; padding: 4px; background: #f8f9fa; border-radius: 4px; cursor: pointer; transition: background 0.15s; }
-  .info-docs li:hover { background: #e8f0fe; }
-  .info-docs li::before { content: "📄 "; }
-  .info-docs-link { color: #1a73e8; text-decoration: none; font-weight: 500; }
-  .info-docs-link:hover { text-decoration: underline; }
+  .info-docs { font-size: 11px; color: #5f6368; text-align: right; max-width: 300px; }
+  .info-docs b { color: #202124; font-size: 11px; }
+  .info-docs ul { list-style: none; margin-top: 2px; }
+  .info-docs li { margin-bottom: 1px; }
+  .info-docs li::before { content: "→ "; color: #dadce0; }
 
   /* EMAIL EDITOR */
   .editor-wrap { flex: 1; overflow-y: auto; padding: 20px; background: #f8f9fa; }
@@ -82,6 +79,15 @@
   .placeholder { color: #ea4335; font-style: italic; }
   .empty-state { display: flex; align-items: center; justify-content: center; height: 100%; color: #80868b; font-size: 14px; }
 
+  /* LINKS PANEL */
+  .links-panel { padding: 20px; overflow-y: auto; }
+  .links-section { margin-bottom: 24px; }
+  .links-section h3 { font-size: 14px; font-weight: 600; color: #202124; margin-bottom: 8px; }
+  .links-section ul { list-style: none; }
+  .links-section li { margin-bottom: 6px; }
+  .links-section a { color: #1a73e8; text-decoration: none; font-size: 13px; }
+  .links-section a:hover { text-decoration: underline; }
+
   /* MATRIX PANEL */
   .matrix-panel { padding: 20px; overflow-y: auto; }
   .matrix-table { width: 100%; border-collapse: collapse; font-size: 12px; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
@@ -102,6 +108,7 @@
   <div class="logo">Galien Outreach</div>
   <div class="pipelines" id="pipelines">
     <div class="pipe-tab" data-id="matrix" onclick="selectPipe('matrix')">📊 Matrice</div>
+    <div class="pipe-tab" data-id="links" onclick="selectPipe('links')">📎 Liens utiles</div>
   </div>
 </div>
 
@@ -144,6 +151,52 @@
           <tbody id="matrixBody"></tbody>
         </table>
       </div>
+      <div class="links-panel" id="linksPanel" style="display:none">
+        <div class="links-section">
+          <h3>📄 Documents Galien 2026</h3>
+          <ul>
+            <li><a href="https://www.calameo.com/read/005925913f6d00c3bc70b" target="_blank">Media Kit 2026</a></li>
+            <li><a href="https://www.calameo.com/read/00592591362d875db33c5" target="_blank">Partnership Guide - Forum</a></li>
+            <li><a href="https://www.calameo.com/read/0059259136d1fb091381d" target="_blank">Partnership Guide - GPS</a></li>
+            <li><a href="https://www.calameo.com/read/005925913571f0f32d21d" target="_blank">Attendees 2025 - Forum</a></li>
+            <li><a href="https://www.calameo.com/read/005925913489cedd473a8" target="_blank">Attendees 2025 - Patient Summit</a></li>
+            <li><a href="https://www.calameo.com/read/0059259138aec21e7abb2" target="_blank">GPS Report - Inaugural Summit</a></li>
+            <li><a href="https://hubs.ly/Q04206dZ0" target="_blank">Patient First Award Charter</a></li>
+            <li><a href="https://www.calameo.com/read/0059259139adfed3db449" target="_blank">Patient First Award - Quick Fact Sheet</a></li>
+          </ul>
+        </div>
+        <div class="links-section">
+          <h3>📅 Programs 2025</h3>
+          <ul>
+            <li><a href="https://www.galienfoundation.org/galien-forum-usa-2025-program" target="_blank">Forum USA 2025 Program</a></li>
+            <li><a href="https://www.galienfoundation.org/galien-patient-summit-usa-2025-program" target="_blank">Patient Summit 2025 Program</a></li>
+          </ul>
+        </div>
+        <div class="links-section">
+          <h3>📋 Quick Fact Sheets (QFS)</h3>
+          <ul>
+            <li><a href="https://www.calameo.com/read/0059259134afd3f9cb7d2" target="_blank">QFS - Start-Up</a></li>
+            <li><a href="https://www.calameo.com/read/0059259138a24b5e2f5c7" target="_blank">QFS - Digital Health</a></li>
+            <li><a href="https://www.calameo.com/read/005925913bc2766e42bda" target="_blank">QFS - Incubator/Accelerator/Equity</a></li>
+            <li><a href="https://www.calameo.com/read/0059259139adfed3db449" target="_blank">QFS - Patient First Award</a></li>
+          </ul>
+        </div>
+        <div class="links-section">
+          <h3>🔗 Booking & Submission</h3>
+          <ul>
+            <li><a href="https://galienfoundation.org/meetings/pgusa/partners" target="_blank">Book Meeting - Partners</a></li>
+            <li><a href="https://galienfoundation.org/meetings/pgusa/nomination" target="_blank">Book Meeting - Nomination</a></li>
+            <li><a href="https://www.galienfoundation.org/sign-in" target="_blank">Submission Platform (Sign In)</a></li>
+          </ul>
+        </div>
+        <div class="links-section">
+          <h3>🎥 Resources</h3>
+          <ul>
+            <li><a href="https://youtu.be/XBZ4y4ftSM4" target="_blank">Submission Tutorial Video</a></li>
+            <li><a href="https://docs.google.com/spreadsheets/d/1CXQvAPqD9qMZonqpPtAiQaJjzJOcHr0Pk-5KpcUrpQs/edit?gid=0#gid=0" target="_blank">Albums Personnalisés PG USA 2025</a></li>
+          </ul>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -159,31 +212,6 @@ const PIPES = [
   {id:"candidats", label:"Candidats"},
   {id:"p1", label:"Candidats P1"}
 ];
-
-const DOC_LINKS = {
-  "Media Kit": "https://www.calameo.com/read/005925913f6d00c3bc70b",
-  "Media Kit (2026)": "https://www.calameo.com/read/005925913f6d00c3bc70b",
-  "Partnership Guide SS": "https://www.calameo.com/read/00592591362d875db33c5",
-  "Partnership Guide": "https://www.calameo.com/read/00592591362d875db33c5",
-  "Partnership Summary": "https://www.calameo.com/read/00592591362d875db33c5",
-  "Partnership Guide GPS": "https://www.calameo.com/read/0059259136d1fb091381d",
-  "Partnership Summary GPS": "https://www.calameo.com/read/0059259136d1fb091381d",
-  "Programs 2025": "https://www.galienfoundation.org/galien-forum-usa-2025-program",
-  "Attendees 2025": "https://www.calameo.com/read/005925913571f0f32d21d",
-  "Attendees GPS 2025": "https://www.calameo.com/read/005925913489cedd473a8",
-  "GPS Report": "https://www.calameo.com/read/0059259138aec21e7abb2",
-  "Charter": "https://hubs.ly/Q04206dZ0",
-  "Patient First QFS": "https://www.calameo.com/read/0059259139adfed3db449",
-  "QFS": "https://www.calameo.com/read/0059259134afd3f9cb7d2",
-  "QFS (categorie)": "https://www.calameo.com/read/0059259134afd3f9cb7d2",
-  "QFS (par categorie)": "https://www.calameo.com/read/0059259134afd3f9cb7d2",
-  "QFS (nouveau)": "https://www.calameo.com/read/0059259134afd3f9cb7d2",
-  "Submission Form": "https://www.calameo.com/read/005925913059f9ef99348",
-  "Submission Form P1": "https://www.calameo.com/read/005925913059f9ef99348",
-  "QFS P1": "https://www.calameo.com/read/0059259139adfed3db449",
-  "Video tuto": "https://youtu.be/XBZ4y4ftSM4",
-  "Past winners": "https://www.galienfoundation.org/past-winners"
-};
 
 const STEPS = {
   "forum": [
@@ -887,12 +915,16 @@ function selectPipe(id) {
   document.getElementById('compose').style.display = 'none';
   document.getElementById('infoBar').style.display = 'none';
   document.getElementById('emptyState').style.display = 'none';
+  document.getElementById('linksPanel').style.display = 'none';
   document.getElementById('matrixPanel').style.display = 'none';
 
   if (id === 'matrix') {
     // Show matrix panel
     renderMatrix();
     document.getElementById('matrixPanel').style.display = 'block';
+  } else if (id === 'links') {
+    // Show links panel
+    document.getElementById('linksPanel').style.display = 'block';
   } else {
     // Show normal editor
     document.getElementById('sidebar').style.display = 'block';
@@ -902,6 +934,7 @@ function selectPipe(id) {
 }
 
 function renderSteps() {
+  if (currentPipe === 'links') return; // Skip for links panel
   const el = document.getElementById('sidebar');
   el.innerHTML = '';
   STEPS[currentPipe].forEach((s, i) => {
@@ -935,36 +968,9 @@ function selectStep(i) {
   const statusTag = s.status === 'ok' ? '<span class="tag tag-ok">OK</span>' : s.status === 'fix' ? '<span class="tag tag-fix">A revoir</span>' : '<span class="tag tag-no">A creer</span>';
   const sourceTag = s.source === 'lem' ? '<span class="tag tag-lem">Lemlist</span>' : '<span class="tag tag-esp">Espanso</span>';
 
-  // Build docs list with clickable links
-  const docsHTML = s.docs.filter(d => d !== 'Aucun').map(d => {
-    const url = DOC_LINKS[d];
-    if (url) {
-      return '<li onclick="insertDocLink(\'' + d.replace(/'/g, "\\'") + '\', \'' + url + '\')" title="Click to insert link in email"><a class="info-docs-link" href="' + url + '" target="_blank" onclick="event.stopPropagation()">' + d + '</a></li>';
-    }
-    return '<li>' + d + '</li>';
-  }).join('');
-
   document.getElementById('infoBar').innerHTML =
     '<div class="info-left"><h2>' + s.name + ' <small style="font-weight:400;font-size:12px;color:#80868b">(' + s.tpl + ')</small></h2><div class="info-tags">' + statusTag + sourceTag + '</div></div>' +
-    '<div class="info-docs"><b>Documents recommandés :</b><ul>' + (docsHTML || '<li style="color:#80868b;font-style:italic">Aucun</li>') + '</ul></div>';
-}
-
-function insertDocLink(title, url) {
-  const editor = document.getElementById('fieldBody');
-  const link = '<a href="' + url + '">' + title + '</a>';
-
-  // Insert at cursor position or at end
-  const sel = window.getSelection();
-  if (sel.rangeCount > 0 && editor.contains(sel.anchorNode)) {
-    const range = sel.getRangeAt(0);
-    range.deleteContents();
-    const node = range.createContextualFragment(link);
-    range.insertNode(node);
-  } else {
-    editor.innerHTML += '<br>' + link;
-  }
-
-  editor.focus();
+    '<div class="info-docs"><b>Documents:</b><ul>' + s.docs.map(d => '<li>' + d + '</li>').join('') + '</ul></div>';
 }
 
 function copyHTML() {
