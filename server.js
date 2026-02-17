@@ -539,7 +539,9 @@ const server = http.createServer((req, res) => {
         );
         const match = existsRegex.exec(espansoContent);
 
-        const newBlock = `  - trigger: "${trigger}"\n    html: |\n      ${html}`;
+        // Indent every line of HTML content with 6 spaces for YAML block scalar
+        const indentedHtml = html.split('\n').map(line => '      ' + line).join('\n');
+        const newBlock = `  - trigger: "${trigger}"\n    html: |\n${indentedHtml}`;
 
         if (match) {
           // Update existing
