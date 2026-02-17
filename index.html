@@ -1778,9 +1778,22 @@ const LEMLIST_MAPPING = {
 let _lemlistCampaigns = null; // cache
 
 function getPlainText(html) {
-  const tmp = document.createElement('div');
-  tmp.innerHTML = html;
-  return tmp.innerText;
+  let text = html;
+  // Convert block elements and <br> to newlines
+  text = text.replace(/<br\s*\/?>/gi, '\n');
+  text = text.replace(/<\/p>\s*<p[^>]*>/gi, '\n\n');
+  text = text.replace(/<\/(div|p|li|h[1-6])>/gi, '\n');
+  // Strip remaining tags
+  text = text.replace(/<[^>]+>/g, '');
+  // Decode HTML entities
+  text = text.replace(/&nbsp;/gi, ' ');
+  text = text.replace(/&amp;/gi, '&');
+  text = text.replace(/&lt;/gi, '<');
+  text = text.replace(/&gt;/gi, '>');
+  text = text.replace(/&#(\d+);/g, (m, n) => String.fromCharCode(n));
+  // Clean up excessive blank lines
+  text = text.replace(/\n{3,}/g, '\n\n');
+  return text.trim();
 }
 
 async function pushToLemlist() {
